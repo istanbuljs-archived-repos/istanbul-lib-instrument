@@ -1,5 +1,6 @@
 import {SourceCoverage} from './source-coverage';
 import {createHash} from 'crypto';
+import generate from 'babel-generator';
 import template from 'babel-template';
 
 // function to use for creating hashes
@@ -430,7 +431,7 @@ const codeVisitor = {
 // the template to insert at the top of the program.
 const coverageTemplate = template(`
     var COVERAGE_VAR = (function () {
-        var path = PATH, 
+        var path = PATH,
             hash = HASH,
             global = (new Function('return this'))(),
             gcv = GLOBAL_COVERAGE_VAR,
@@ -443,6 +444,23 @@ const coverageTemplate = template(`
         return coverage[path] = coverageData;
     })();
 `);
+
+// Return the preamble node used to collect coverage information.
+function getPreamble (types, visitState, sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
+    const T = types;
+    const coverageData = visitState.cov.toJSON();
+    const hash = createHash(SHA).update(JSON.stringify(coverageData)).digest('hex');
+    const coverageNode = T.valueToNode(coverageData);
+    const cv = coverageTemplate({
+        GLOBAL_COVERAGE_VAR: T.stringLiteral(opts.coverageVariable),
+        COVERAGE_VAR: T.identifier(visitState.varName),
+        PATH: T.stringLiteral(sourceFilePath),
+        INITIAL: coverageNode,
+        HASH: T.stringLiteral(hash)
+    });
+    return cv;
+}
+
 /**
  * programVisitor is a `babel` adaptor for instrumentation.
  * It returns an object with two methods `enter` and `exit`.
@@ -456,13 +474,12 @@ const coverageTemplate = template(`
  * `fileCoverage` - the file coverage object created for the source file.
  * `sourceMappingURL` - any source mapping URL found when processing the file.
  *
- * @param {Object} types - an instance of babel-types
- * @param {string} sourceFilePath - the path to source file
- * @param {Object} opts - additional options
+ * @param {Object} types - an instance of babel-types.
+ * @param {string} sourceFilePath - the path to source file.
+ * @param {Object} opts - additional options.
  * @param {string} [opts.coverageVariable=__coverage__] the global coverage variable name.
  */
 function programVisitor(types, sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
-    const T = types;
     const visitState = new VisitState(types, sourceFilePath);
     return {
         enter(path) {
@@ -471,16 +488,12 @@ function programVisitor(types, sourceFilePath = 'unknown.js', opts = {coverageVa
         exit(path) {
             visitState.cov.freeze();
             const coverageData = visitState.cov.toJSON();
-            const hash = createHash(SHA).update(JSON.stringify(coverageData)).digest('hex');
-            const coverageNode = T.valueToNode(coverageData);
-            const cv = coverageTemplate({
-                GLOBAL_COVERAGE_VAR: T.stringLiteral(opts.coverageVariable),
-                COVERAGE_VAR: T.identifier(visitState.varName),
-                PATH: T.stringLiteral(sourceFilePath),
-                INITIAL: coverageNode,
-                HASH: T.stringLiteral(hash)
-            });
-            path.node.body.unshift(cv);
+            path.node.body.unshift(getPreamble(
+                types,
+                visitState,
+                sourceFilePath,
+                opts
+            ));
             return {
                 fileCoverage: coverageData,
                 sourceMappingURL: visitState.sourceMappingURL
@@ -489,6 +502,33 @@ function programVisitor(types, sourceFilePath = 'unknown.js', opts = {coverageVa
     };
 }
 
+/**
+ * Return the preamble header used to collect coverage information. (this method is
+ * used by nyc to track the coverage of files that have not yet been required).
+ *
+ * @param {Object} types - an instance of babel-types.
+ * @param {string} sourceFilePath - the path to source file.
+ * @param {Object} opts - additional options.
+ * @param {string} [opts.coverageVariable=__coverage__] the global coverage variable name.
+ */
+function preambleVisitor (types, sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
+  const visitState = new VisitState(types, sourceFilePath);
+  return {
+      enter(path) {
+          path.traverse(codeVisitor, visitState);
+      },
+      exit() {
+          visitState.cov.freeze();
+          const cv = getPreamble(
+              types,
+              visitState,
+              sourceFilePath,
+              opts
+          );
+          return generate(cv).code;
+      }
+  };
+}
+
+export {preambleVisitor};
 export default programVisitor;
-
-
