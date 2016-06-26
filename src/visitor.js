@@ -445,15 +445,7 @@ const coverageTemplate = template(`
     })();
 `);
 
-/**
- * Return the preamble node used to collect coverage information.
- *
- * @param {Object} types - an instance of babel-types.
- * @param {Object} visitState - coverage tracking object.
- * @param {string} sourceFilePath - the path to source file.
- * @param {Object} opts - additional options.
- * @param {string} [opts.coverageVariable=__coverage__] the global coverage variable name.
- */
+// Return the preamble node used to collect coverage information.
 function getPreamble (types, visitState, sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
     const T = types;
     const coverageData = visitState.cov.toJSON();
@@ -511,9 +503,10 @@ function programVisitor(types, sourceFilePath = 'unknown.js', opts = {coverageVa
 }
 
 /**
- * Return the preamble source used to collect coverage information. (this method is
- * used by nyc to track the coverage of files that have not been required).
+ * Return the preamble header used to collect coverage information. (this method is
+ * used by nyc to track the coverage of files that have not yet been required).
  *
+ * @param {Object} types - an instance of babel-types.
  * @param {string} sourceFilePath - the path to source file.
  * @param {Object} opts - additional options.
  * @param {string} [opts.coverageVariable=__coverage__] the global coverage variable name.

@@ -144,6 +144,14 @@ class Instrumenter {
         return this.sourceMap;
     }
 
+    /**
+     * Return the preamble header used to collect coverage information. (this method is
+     * used by nyc to track the coverage of files that have not yet been required).
+     *
+     * @param {string} code - the code to instrument
+     * @param {string} filename - the filename against which to track coverage.
+     * @returns {string} the instrumentation header.
+     */
     getPreamble(code, filename) {
         const opts = this.opts;
         const ast = babylon.parse(code, {
