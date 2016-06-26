@@ -7,6 +7,7 @@ import * as t from 'babel-types';
 import traverse from 'babel-traverse';
 import generate from 'babel-generator';
 import programVisitor from './visitor';
+import {preambleVisitor} from './visitor';
 
 function defaultOpts() {
     return {
@@ -141,6 +142,29 @@ class Instrumenter {
      */
     lastSourceMap() {
         return this.sourceMap;
+    }
+
+    getPreamble(code, filename) {
+        const opts = this.opts;
+        const ast = babylon.parse(code, {
+            allowReturnOutsideFunction: opts.autoWrap,
+            sourceType: opts.esModules ? "module" : "script"
+        });
+        const ee = preambleVisitor(t, filename, {
+            coverageVariable: opts.coverageVariable
+        });
+        let preamble = '';
+        const visitor = {
+            Program: {
+                enter: ee.enter,
+                exit: function (path) {
+                    preamble = ee.exit(path);
+                }
+            }
+        };
+        traverse(ast, visitor);
+
+        return preamble;
     }
 }
 

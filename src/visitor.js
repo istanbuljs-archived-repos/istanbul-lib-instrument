@@ -2,7 +2,6 @@ import {SourceCoverage} from './source-coverage';
 import {createHash} from 'crypto';
 import generate from 'babel-generator';
 import template from 'babel-template';
-const babelTypes = require('babel-core').types;
 
 // function to use for creating hashes
 const SHA = 'sha1';
@@ -519,17 +518,24 @@ function programVisitor(types, sourceFilePath = 'unknown.js', opts = {coverageVa
  * @param {Object} opts - additional options.
  * @param {string} [opts.coverageVariable=__coverage__] the global coverage variable name.
  */
-function getPreambleString (sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
-  const types = babelTypes;
+function preambleVisitor (types, sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
   const visitState = new VisitState(types, sourceFilePath);
-  const cv = getPreamble(
-    types,
-    visitState,
-    sourceFilePath,
-    opts
-  );
-  return generate(cv).code;
+  return {
+      enter(path) {
+          path.traverse(codeVisitor, visitState);
+      },
+      exit() {
+          visitState.cov.freeze();
+          const cv = getPreamble(
+              types,
+              visitState,
+              sourceFilePath,
+              opts
+          );
+          return generate(cv).code;
+      }
+  };
 }
 
-export {getPreambleString};
+export {preambleVisitor};
 export default programVisitor;

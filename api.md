@@ -66,6 +66,18 @@ returns the source map produced for the last file instrumented.
 
 Returns **(null | [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object))** the source map object.
 
+# getPreamble
+
+Return the preamble node used to collect coverage information.
+
+**Parameters**
+
+-   `types` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** an instance of babel-types.
+-   `visitState` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** coverage tracking object.
+-   `sourceFilePath` **\[[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)](default 'unknown.js')** the path to source file.
+-   `opts` **\[[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)](default {coverageVariable: '\_\_coverage\_\_'})** additional options.
+    -   `opts.coverageVariable` **\[[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)]** the global coverage variable name. (optional, default `__coverage__`)
+
 # programVisitor
 
 programVisitor is a `babel` adaptor for instrumentation.
@@ -82,7 +94,19 @@ The exit function returns an object that currently has the following keys:
 
 **Parameters**
 
--   `types` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** an instance of babel-types
--   `sourceFilePath` **\[[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)](default 'unknown.js')** the path to source file
--   `opts` **\[[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)](default {coverageVariable: '\_\_coverage\_\_'})** additional options
+-   `types` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** an instance of babel-types.
+-   `sourceFilePath` **\[[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)](default 'unknown.js')** the path to source file.
+-   `opts` **\[[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)](default {coverageVariable: '\_\_coverage\_\_'})** additional options.
     -   `opts.coverageVariable` **\[[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)]** the global coverage variable name. (optional, default `__coverage__`)
+
+# preambleVisitor
+
+Return the preamble source used to collect coverage information. (this method is
+used by nyc to track the coverage of files that have not been required).
+
+**Parameters**
+
+-   `sourceFilePath` **\[[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)](default 'unknown.js')** the path to source file.
+-   `opts` **\[[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)](default {coverageVariable: '\_\_coverage\_\_'})** additional options.
+    -   `opts.coverageVariable` **\[[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)]** the global coverage variable name. (optional, default `__coverage__`)
+-   `types`  
