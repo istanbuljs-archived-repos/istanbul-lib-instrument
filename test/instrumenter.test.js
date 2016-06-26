@@ -6,7 +6,7 @@ import Instrumenter from '../src/instrumenter';
 require('chai').should();
 
 describe('Instrumenter', function () {
-    describe('getPreambleString', function () {
+    describe('getPreamble', function () {
         it('returns generated preamble code', function () {
             const instrumenter = new Instrumenter();
             const preamble = instrumenter.getPreamble(
