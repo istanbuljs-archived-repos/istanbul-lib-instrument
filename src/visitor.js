@@ -449,14 +449,14 @@ const coverageTemplate = template(`
 /**
  * Return the preamble node used to collect coverage information.
  *
- * @param {Object} types - an instance of babel-types
+ * @param {Object} types - an instance of babel-types.
  * @param {Object} visitState - coverage tracking object.
- * @param {string} sourceFilePath - the path to source file
- * @param {Object} opts - additional options
+ * @param {string} sourceFilePath - the path to source file.
+ * @param {Object} opts - additional options.
  * @param {string} [opts.coverageVariable=__coverage__] the global coverage variable name.
  */
 function getPreamble (types, visitState, sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
-    const T = types || babelTypes;
+    const T = types;
     const coverageData = visitState.cov.toJSON();
     const hash = createHash(SHA).update(JSON.stringify(coverageData)).digest('hex');
     const coverageNode = T.valueToNode(coverageData);
@@ -483,9 +483,9 @@ function getPreamble (types, visitState, sourceFilePath = 'unknown.js', opts = {
  * `fileCoverage` - the file coverage object created for the source file.
  * `sourceMappingURL` - any source mapping URL found when processing the file.
  *
- * @param {Object} types - an instance of babel-types
- * @param {string} sourceFilePath - the path to source file
- * @param {Object} opts - additional options
+ * @param {Object} types - an instance of babel-types.
+ * @param {string} sourceFilePath - the path to source file.
+ * @param {Object} opts - additional options.
  * @param {string} [opts.coverageVariable=__coverage__] the global coverage variable name.
  */
 function programVisitor(types, sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
@@ -515,16 +515,15 @@ function programVisitor(types, sourceFilePath = 'unknown.js', opts = {coverageVa
  * Return the preamble source used to collect coverage information. (this method is
  * used by nyc to track the coverage of files that have not been required).
  *
- * @param {Object} types - an instance of babel-types
- * @param {string} sourceFilePath - the path to source file
- * @param {Object} opts - additional options
+ * @param {string} sourceFilePath - the path to source file.
+ * @param {Object} opts - additional options.
  * @param {string} [opts.coverageVariable=__coverage__] the global coverage variable name.
  */
-function getPreambleString (_types, sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
-  const T = _types || babelTypes;
-  const visitState = new VisitState(T, sourceFilePath);
+function getPreambleString (sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
+  const types = babelTypes;
+  const visitState = new VisitState(types, sourceFilePath);
   const cv = getPreamble(
-    T,
+    types,
     visitState,
     sourceFilePath,
     opts
