@@ -218,6 +218,7 @@ class VisitState {
     }
 
     findLeaves(node, accumulator, parent, property) {
+        /* istanbul ignore if: paranoid check */
         if (!node) {
             return;
         }
@@ -463,8 +464,15 @@ const coverageTemplate = template(`
  * @param {string} sourceFilePath - the path to source file
  * @param {Object} opts - additional options
  * @param {string} [opts.coverageVariable=__coverage__] the global coverage variable name.
+ * @param {boolean} [opts.sideEffectsOnly=false] when set to true, overwrite the original
+ *  code with only the side-effects of coverage processing. Used to implement getting coverage
+ *  for un-required files without running any mainline code.
+ *  Set this only if you know what you are doing.
  */
-function programVisitor(types, sourceFilePath = 'unknown.js', opts = {coverageVariable: '__coverage__'}) {
+function programVisitor(types, sourceFilePath = 'unknown.js', opts = {
+    coverageVariable: '__coverage__',
+    sideEffectsOnly: false
+}) {
     const T = types;
     const visitState = new VisitState(types, sourceFilePath);
     return {
@@ -483,7 +491,11 @@ function programVisitor(types, sourceFilePath = 'unknown.js', opts = {coverageVa
                 INITIAL: coverageNode,
                 HASH: T.stringLiteral(hash)
             });
-            path.node.body.unshift(cv);
+            if (opts.sideEffectsOnly) {
+                path.node.body = [ cv ];
+            } else {
+                path.node.body.unshift(cv);
+            }
             return {
                 fileCoverage: coverageData,
                 sourceMappingURL: visitState.sourceMappingURL

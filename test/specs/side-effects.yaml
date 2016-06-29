@@ -1,0 +1,13 @@
+---
+name: simple statement, side-effect only
+code: |
+  var x = args[0] > 5 ? args[0] : "undef";
+  output = x;
+instrumentOpts:
+  sideEffectsOnly: true
+tests:
+  - name: does not cover anything
+    args: [10]
+    lines: {'1': 0, '2': 0}
+    branches: {'1': [0, 0]}
+    statements: {'1': 0, '2': 0}

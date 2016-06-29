@@ -91,6 +91,17 @@ tests:
     statements: {'1': 1}
 
 ---
+name: ignore before ternary alternate
+code: |
+  output = args[0] === 1 ?  1 : /* istanbul ignore next */ 0;
+tests:
+  - args: [1]
+    out: 1
+    lines: {'1': 1}
+    branches: {'1': [1]}
+    statements: {'1': 1}
+
+---
 name: ignore in logical expression
 code: |
   if (args[0] === 1  || /* istanbul ignore next */ args[0] === 2 ) {

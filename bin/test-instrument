@@ -7,12 +7,18 @@ const nopt = require('nopt');
 const opts = {
     "compact": Boolean,
     "module": Boolean,
-    "sourcemaps": Boolean
+    "sourcemaps": Boolean,
+    "side-effects-only": Boolean
 };
 const parsed = nopt(opts, null, process.argv, 2);
 
 const args = parsed.argv.remain;
-const inst = createInstrumenter({compact: parsed.compact, esModules: parsed.module, produceSourceMap: parsed.sourcemaps});
+const inst = createInstrumenter({
+    compact: parsed.compact,
+    esModules: parsed.module,
+    produceSourceMap: parsed.sourcemaps,
+    sideEffectsOnly: parsed['side-effects-only']
+});
 
 args.forEach(function (file) {
     const content = readFileSync(file, 'utf8');
