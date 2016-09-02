@@ -134,7 +134,7 @@ class VisitState {
             wrap(
                 T.memberExpression(
                     T.memberExpression(T.identifier(this.varName), T.identifier(type)),
-                    T.stringLiteral(String(id)),
+                    T.numericLiteral(id),
                     true
                 )
             )
@@ -430,7 +430,7 @@ const codeVisitor = {
 // the template to insert at the top of the program.
 const coverageTemplate = template(`
     var COVERAGE_VAR = (function () {
-        var path = PATH, 
+        var path = PATH,
             hash = HASH,
             global = (new Function('return this'))(),
             gcv = GLOBAL_COVERAGE_VAR,
