@@ -17,7 +17,8 @@ function defaultOpts() {
         autoWrap: false,
         produceSourceMap: false,
         sourceMapUrlCallback: null,
-        debug: false
+        debug: false,
+        sideEffectsOnly: false
     };
 }
 /**
@@ -35,6 +36,8 @@ function defaultOpts() {
  * @param {Function} [opts.sourceMapUrlCallback=null] a callback function that is called when a source map URL
  *     is found in the original code. This function is called with the source file name and the source map URL.
  * @param {boolean} [opts.debug=false] - turn debugging on
+ * @param {boolean} [opts.sideEffectsOnly=false] - process code for side-effects only. The returned code will
+ *  only have statements that pertain to coverage object processing and none of the original code.
  */
 class Instrumenter {
     constructor(opts=defaultOpts()) {
@@ -80,7 +83,8 @@ class Instrumenter {
             sourceType: opts.esModules ? "module" : "script"
         });
         const ee = programVisitor(t, filename, {
-            coverageVariable: opts.coverageVariable
+            coverageVariable: opts.coverageVariable,
+            sideEffectsOnly: opts.sideEffectsOnly
         });
         let output = {};
         const visitor = {
