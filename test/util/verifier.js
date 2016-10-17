@@ -2,6 +2,7 @@ import Instrumenter from '../../src/instrumenter';
 import {classes} from 'istanbul-lib-coverage';
 import {assert} from 'chai';
 import clone from 'clone';
+import readInitialCoverage from '../../src/read-coverage';
 
 var FileCoverage = classes.FileCoverage;
 
@@ -47,6 +48,10 @@ class Verifier {
         assert.deepEqual(cov.f, expectedCoverage.functions || {}, 'Function coverage mismatch');
         assert.deepEqual(cov.b, expectedCoverage.branches || {}, 'Branch coverage mismatch');
         assert.deepEqual(cov.s, expectedCoverage.statements || {}, 'Statement coverage mismatch');
+
+        if (this.result.file) {
+            assert.deepEqual(readInitialCoverage(this.getGeneratedCode(), this.result.file), this.result.emptyCoverage);
+        }
     }
 
     getCoverage() {
@@ -134,7 +139,8 @@ function create(code, opts, instrumenterOpts) {
         code: code,
         generatedCode: instrumenterOutput,
         coverageVariable: coverageVariable,
-        baseline: clone(g[coverageVariable])
+        baseline: clone(g[coverageVariable]),
+        emptyCoverage: instrumenter.lastFileCoverage()
     });
 }
 

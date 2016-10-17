@@ -1,4 +1,5 @@
 import {SourceCoverage} from './source-coverage';
+import genVar from './gen-var';
 import {createHash} from 'crypto';
 import template from 'babel-template';
 
@@ -9,12 +10,6 @@ const COMMENT_RE = /^\s*istanbul\s+ignore\s+(if|else|next)(?=\W|$)/;
 // source map URL pattern
 const SOURCE_MAP_RE = /[#@]\s*sourceMappingURL=(.*)\s*$/m;
 
-// generate a variable name from hashing the supplied file path
-function genVar(filename) {
-    var hash = createHash(SHA);
-    hash.update(filename);
-    return 'cov_' + parseInt(hash.digest('hex').substr(0, 12), 16).toString(36);
-}
 
 // VisitState holds the state of the visitor, provides helper functions
 // and is the `this` for the individual coverage visitors.
