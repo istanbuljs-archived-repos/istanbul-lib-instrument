@@ -48,10 +48,15 @@ class Verifier {
         assert.deepEqual(cov.f, expectedCoverage.functions || {}, 'Function coverage mismatch');
         assert.deepEqual(cov.b, expectedCoverage.branches || {}, 'Branch coverage mismatch');
         assert.deepEqual(cov.s, expectedCoverage.statements || {}, 'Statement coverage mismatch');
-
+        const initial = readInitialCoverage(this.getGeneratedCode());
+        assert.ok(initial);
+        assert.deepEqual(initial.coverageData, this.result.emptyCoverage);
+        assert.ok(initial.path);
         if (this.result.file) {
-            assert.deepEqual(readInitialCoverage(this.getGeneratedCode(), this.result.file), this.result.emptyCoverage);
+            assert.equal(initial.path, this.result.file);
         }
+        assert.equal(initial.gcv, this.result.coverageVariable);
+        assert.ok(initial.hash);
     }
 
     getCoverage() {

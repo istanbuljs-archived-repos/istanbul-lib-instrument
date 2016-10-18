@@ -1,15 +1,19 @@
 import {SourceCoverage} from './source-coverage';
-import genVar from './gen-var';
+import { SHA, MAGIC_KEY, MAGIC_VALUE } from './constants';
 import {createHash} from 'crypto';
 import template from 'babel-template';
 
-// function to use for creating hashes
-const SHA = 'sha1';
 // istanbul ignore comment pattern
 const COMMENT_RE = /^\s*istanbul\s+ignore\s+(if|else|next)(?=\W|$)/;
 // source map URL pattern
 const SOURCE_MAP_RE = /[#@]\s*sourceMappingURL=(.*)\s*$/m;
 
+// generate a variable name from hashing the supplied file path
+function genVar(filename) {
+    var hash = createHash(SHA);
+    hash.update(filename);
+    return 'cov_' + parseInt(hash.digest('hex').substr(0, 12), 16).toString(36);
+}
 
 // VisitState holds the state of the visitor, provides helper functions
 // and is the `this` for the individual coverage visitors.
@@ -460,8 +464,10 @@ function programVisitor(types, sourceFilePath = 'unknown.js', opts = {coverageVa
         exit(path) {
             visitState.cov.freeze();
             const coverageData = visitState.cov.toJSON();
+            coverageData[MAGIC_KEY] = MAGIC_VALUE;
             const hash = createHash(SHA).update(JSON.stringify(coverageData)).digest('hex');
             const coverageNode = T.valueToNode(coverageData);
+            delete coverageData[MAGIC_KEY];
             const cv = coverageTemplate({
                 GLOBAL_COVERAGE_VAR: T.stringLiteral(opts.coverageVariable),
                 COVERAGE_VAR: T.identifier(visitState.varName),

@@ -1,9 +1,9 @@
-import genVar from './gen-var';
+import { MAGIC_KEY, MAGIC_VALUE } from './constants';
 import { parse } from 'babylon';
 import traverse from 'babel-traverse';
 import * as t from 'babel-types';
 
-export default function readInitialCoverage (code, filename) {
+export default function readInitialCoverage (code) {
     if (typeof code !== 'string') {
         throw new Error('Code must be a string');
     }
@@ -17,31 +17,44 @@ export default function readInitialCoverage (code, filename) {
         plugins: ["*"]
     });
 
-    const varName = genVar(filename);
-    let covPath;
+    let covScope;
     traverse(ast, {
-        VariableDeclarator: function (path) {
-            if (t.isIdentifier(path.node.id) && path.node.id.name === varName) {
-                covPath = path.get('init');
+        ObjectProperty: function (path) {
+            const { node } = path;
+            if (!node.computed &&
+                t.isIdentifier(node.key) &&
+                node.key.name === MAGIC_KEY)
+            {
+                const magicValue = path.get('value').evaluate();
+                if (!magicValue.confident || magicValue.value !== MAGIC_VALUE) {
+                    return;
+                }
+                covScope = path.scope.getFunctionParent();
                 path.stop();
             }
         }
     });
 
-    if (!covPath) {
+    if (!covScope) {
         return null;
     }
 
-    const binding = covPath.get('callee.body').scope.getOwnBinding("coverageData");
-    if (!binding) {
-        return null;
+    const result = {};
+
+    for (const key of ['path', 'hash', 'gcv', 'coverageData']) {
+        const binding = covScope.getOwnBinding(key);
+        if (!binding) {
+            return null;
+        }
+        const valuePath = binding.path.get('init');
+        const value = valuePath.evaluate();
+        if (!value.confident) {
+            return null;
+        }
+        result[key] = value.value;
     }
 
-    const dataPath = binding.path.get('init');
-    const coverageData = dataPath.evaluate();
-    if (!coverageData.confident) {
-        return null;
-    }
-
-    return coverageData.value;
+    delete result.coverageData[MAGIC_KEY];
+    
+    return result;
 }
