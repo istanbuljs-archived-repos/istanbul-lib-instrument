@@ -28,7 +28,7 @@
     "chai": "^3.0.0",
     "clone": "^2.0.0",
     "coveralls": "^2.11.4",
-    "cross-env": "^3.1.3",
+    "cross-env": "^2.0.1",
     "documentation": "^4.0.0-beta9",
     "js-yaml": "^3.3.1",
     "jshint": "^2.8.0",
