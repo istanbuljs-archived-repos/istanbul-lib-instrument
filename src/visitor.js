@@ -191,7 +191,9 @@ class VisitState {
         }
         if (!n.id) {
             const decl = path.find(node => node.isVariableDeclarator());
-            if (decl) {
+            const functionParent = path.getFunctionParent();
+            // make sure we aren't messing with nested functions
+            if (decl && functionParent && functionParent.isProgram()) {
                 n.id = decl.get('id').node;
             }
         }
