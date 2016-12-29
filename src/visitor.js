@@ -192,7 +192,10 @@ class VisitState {
         if (!n.id) {
             const decl = path.find(node => node.isVariableDeclarator());
             if (decl) {
-                n.id = decl.get('id').node;
+                const fnName = decl.get('id.name').node;
+                const params = path.get('params').map(param => param.get('name').node);
+                const found = params.indexOf(fnName) > -1;
+                n.id = T.identifier(found ? `_${fnName}` : fnName);
             }
         }
         const name = path.node.id ? path.node.id.name : path.node.name;

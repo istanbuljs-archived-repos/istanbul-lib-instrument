@@ -107,3 +107,15 @@ tests:
     lines: {'1': 1, '2': 1}
     functions: {'0': 0}
     statements: {'0': 1, '1': 1}
+
+---
+name: function declaration name should be different than parameter name
+code: |
+  const foo = function(a, foo) {}
+  output = foo.name;
+tests:
+  - name: should not be name of a parameter
+    out: _foo
+    lines: {'1': 1, '2': 1}
+    functions: {'0': 0}
+    statements: {'0': 1, '1': 1}
