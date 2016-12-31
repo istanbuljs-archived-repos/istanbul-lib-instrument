@@ -144,7 +144,7 @@ class VisitState {
             path.node.body.unshift(T.expressionStatement(increment));
         } else if (path.isStatement()) {
             path.insertBefore(T.expressionStatement(increment));
-        } else if (path.isFunctionExpression() && T.isVariableDeclarator(path.parentPath)) {
+        } else if ((path.isFunctionExpression() || path.isArrowFunctionExpression()) && T.isVariableDeclarator(path.parentPath)) {
             path.parentPath.parentPath.insertBefore(T.expressionStatement(
                 increment
             ));

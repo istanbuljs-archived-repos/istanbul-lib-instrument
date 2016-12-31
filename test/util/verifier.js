@@ -5,7 +5,6 @@ import clone from 'clone';
 import readInitialCoverage from '../../src/read-coverage';
 
 var FileCoverage = classes.FileCoverage;
-var nodeVersion = Number(process.version.match(/v([0-9])/)[1]);
 
 function pad(str, len) {
     var blanks = '                                             ';
@@ -37,13 +36,6 @@ class Verifier {
     }
 
     verify(args, expectedOutput, expectedCoverage) {
-        // allows us to test some language features that are only
-        // supported in newer Node.js versions.
-        if (nodeVersion < expectedCoverage.minNodeVersion) {
-            console.log("Skipping '" + expectedCoverage.name + "' requires Node " + expectedCoverage.minNodeVersion + " or later.");
-            return;
-        }
-
         assert.ok(!this.result.err, (this.result.err || {}).message);
         getGlobalObject()[this.result.coverageVariable] = clone(this.result.baseline);
         var actualOutput = this.result.fn(args),
