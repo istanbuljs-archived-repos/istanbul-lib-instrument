@@ -62,7 +62,7 @@ tests:
 
 ---
 name: arrow function name assignment
-guard: isArrowFnAvailable
+guard: isInferredFunctionNameAvailable
 code: |
   const foo = (bar) => {}
   output = foo.name;
