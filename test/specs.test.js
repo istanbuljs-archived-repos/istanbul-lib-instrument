@@ -11,9 +11,7 @@ const clone = require('clone');
 
 const dir = path.resolve(__dirname, 'specs'),
     files = fs.readdirSync(dir).filter(function (f) {
-        const isYaml = f.match(/\.yaml$/);
-        const grep = process.env.GREP ? (new RegExp(process.env.GREP)).test(f) : true;
-        return isYaml && grep;
+        return f.match(/\.yaml$/);
     });
 
 function loadDocs() {
