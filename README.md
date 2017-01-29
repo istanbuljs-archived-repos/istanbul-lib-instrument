@@ -1,6 +1,8 @@
 istanbul-lib-instrument
 -----------------------
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/istanbuljs/istanbul-lib-instrument.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/istanbuljs/istanbul-lib-instrument.svg?branch=master)](https://travis-ci.org/istanbuljs/istanbul-lib-instrument)
 
 Istanbul instrumenter library.
