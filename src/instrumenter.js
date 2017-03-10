@@ -61,7 +61,7 @@ class Instrumenter {
     }
     /**
      * instrument the supplied code and track coverage against the supplied
-     * filename. It throws if invalid code is passed to it. ES5 and ES6 syntax
+     * filename. It throws if invalid code is passed to it. ES5 and ES6 and JSX syntax
      * is supported. To instrument ES6 modules, make sure that you set the
      * `esModules` property to `true` when creating the instrumenter.
      *
@@ -80,7 +80,11 @@ class Instrumenter {
         const opts = this.opts;
         const ast = babylon.parse(code, {
             allowReturnOutsideFunction: opts.autoWrap,
-            sourceType: opts.esModules ? "module" : "script"
+            sourceType: opts.esModules ? "module" : "script",
+            plugins: [
+              'jsx',
+              'flow'
+            ]
         });
         const ee = programVisitor(t, filename, {
             coverageVariable: opts.coverageVariable,
